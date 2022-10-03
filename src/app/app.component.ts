@@ -15,18 +15,7 @@ export class AppComponent {
   fields: FormlyFieldConfig[];
   type: string;
   examples = [
-    'simple',
-    'nested',
-    'arrays',
-    'numbers',
     'references',
-    'schema_dependencies',
-    'null_field',
-    'nullable',
-    'allOf',
-    'anyOf',
-    'oneOf',
-    'select_alternatives',
   ];
   constructor(
     private formlyJsonschema: FormlyJsonschema,
