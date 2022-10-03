@@ -1,0 +1,405 @@
+openapi: 3.0.3
+servers: 
+  - url: 'http://booksapi.com'
+info:
+  version: 1.0.0
+  title: BooksAPI
+  termsOfService: 'https://booksapi.com/terms/'
+  contact:
+    email: contact@booksapi.com
+    url: 'http://booksapi.com/contact'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  x-logo:
+    url: 'https://redocly.com/static/logo-bb321acdb156828f8cde4945296fe786.png'
+  description: |
+    ## Creating books ##
+    Books can be instantiated with only a `title` and `author`. All other properties can be added using the `/books/{bookId}` endpoint.
+    `name` is the only required property for the `author`. If a matching author is found in the system, the author is assigned to the book. To ensure accuracy, provide as many properties as possible.
+    ### Example
+    #### Request Object
+    ```
+    {
+      "title": "One hundred years of solitude",
+      "author": {
+        "name": "Gabriel Garcia Marquez",
+      }
+    }
+    ```
+    #### Object created
+    ```
+    {
+      "id": 876575,
+      "title": "One hundred years of solitude",
+      "author": {
+        "id": 123,
+        "name": "Gabriel Garcia Marquez",
+        "fname": "Gabriel",
+        "otherNames": "Garcia Marquez",
+        "countryOfOrigin": "Colimbia",
+        "biography": "Gabriel García Márquez was born in 1927 in the town of Aracataca, Columbia.Latin America's preeminent man of letters, he was awarded the Nobel Prize in Literature in 1982. García Márquez began his writing career as a journalist and is the author of numerous other works of fiction and nonfiction, including the novels The Autumn of the Patriarch and Love in the Time of Cholera, and the autobiography Living to Tell the Tale. There has been resounding acclaim for his life's work since he passed away in April 2014."
+      }
+    }
+    ```
+    ### Available endpoints
+    | Use case      | Endpoint | Method     |
+    | :---        |  :---        | :---        |
+    | Create books      | `/books`  | `POST`   |
+    | Update a book   | `/books/{bookId}`  | `POST`   |
+    | Retrieve books      | `/books`  | `GET`   |
+    | Retrieve a book   | `/books/{bookId}`  | `GET`   |
+    
+    ## Theming
+    [Link to Themes in Redoc](https://redocly.com/docs/developer-portal/configuration/theme/#example-themets-file)
+externalDocs:
+  description: API Use Cases
+  url: './content.html'
+paths:
+  /books:
+    get:
+      tags: 
+        -  Retrieval
+      summary: Retrieve books
+      description: |
+          Use this method to retirve books their ids or using a list query object.
+          #### Using ids 
+          For the query parameter `id`, provide a single ID or an array of ID. 
+          ```
+          /books?id=234
+          /books?id=[123,3245]
+          ```
+          #### Using list query 
+          For the query parameter `query`, provide values for `count` and `start`. 
+          ```
+          // twenty books starting from creation rank 12
+          /books?query={count: 20, start: 12} 
+
+          //count defaults to 20.
+          /books?query={start: 13}
+
+          //latest books 50 books.
+          /books?query={count: 50}
+          ```
+      operationId: getBooks
+      parameters:
+        - name: query
+          in: query
+          description: Count, start or ids
+          required: false
+          schema:
+            $ref: '#/components/schemas/ListQuery'
+          style: simple
+      responses:
+        200:
+          description: |
+            The book corresponding to the provided `bookId`
+            A map of operations links that can be followed from the response. The key of the map is a short name for the link, following the naming constraints of the names for Component Objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        404:
+          description: No book found for the provided `bookId`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags: 
+        -  Create or update
+      summary: Create a book
+      description: |
+        #### Minimum properties
+        You can use this endpoint to instantiate a new `book` with only a `title` and `author`. All other properties are optional. Use the 'books/{bookId}' endpoint to update the book.      operationId: postBook
+      operationId: createBook  
+      externalDocs:
+        description: Creating books by type
+        url: './content.html'
+      requestBody:
+        required: true
+        content:
+            application/json:
+              schema:
+                type: object 
+                $ref: '#/components/schemas/Book'
+                required:
+                  - title
+                  - author
+      responses:
+        200:
+          description: Successfully created a new book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+
+        400:
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:   
+                  message:
+                    type: string
+        500:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /books/{bookId}:
+    parameters:
+      - name: bookId
+        description: The unique identifier of the Book,
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ObjectId'
+    get:
+      tags: 
+        -  Retrieval
+      summary: Retrieve a book
+      operationId: getBookById
+      responses:
+        200:
+          description: |
+            Use this method to retrieve a book to view or edit. You need to know the `id` of the book.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        404:
+          description: No book found for the provided `bookId`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags: 
+        -  Create or update
+      summary: Update a book
+      description: |
+        Update a book. Some description of the operation.
+        You can use `markdown` here.
+      operationId: updateBook
+      requestBody:
+        required: true
+        content:
+            application/json:
+              schema:
+                type: object 
+                $ref: '#/components/schemas/Book'
+                required:
+                  - id
+                  - title
+                  - author
+      responses:
+        200:
+          description: Successfully updated the book
+        400:
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:   
+                  message:
+                    type: string
+        500:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    ObjectId:
+      description: The unique identifier of an Object
+      type: integer
+    CountQuery:
+      type: object
+      properties:
+        count:
+          description: Number of books. Default 20.
+          type: integer 
+        start:
+          description: Start of count. Default 0.
+          type: integer 
+    IdsGroup:
+      type: object
+      properties:
+        ids:
+          description: Integer or an array of positive integers
+          $ref: '#/components/schemas/IntegerGroup'
+    ListQuery:
+      oneOf: 
+        - $ref: '#/components/schemas/CountQuery'
+        - $ref: '#/components/schemas/IdsGroup'
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - author
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        isbn:
+          type: string
+          example: 0060883286
+        description:
+          type: string
+          example: |
+            One Hundred Years of Solitude tells the story of the rise and fall, birth and death of the mythical town of Macondo through the history of the Buend&#237;a family. Inventive, amusing, magnetic, sad, and alive with unforgettable men and women -- brimming with truth, compassion, and a lyrical magic that strikes the soul -- this novel is a masterpiece in the art of fiction.
+        title:
+          type: string
+          example: One Hundred Years of Solitude
+        edition:
+          type: string
+          example: Harper Perennial Modern Classics; Reprint edition (Feb. 21 2006)
+        author:
+          $ref: '#/components/schemas/Creator'
+        illustrator:
+          $ref: '#/components/schemas/Creator'
+        front:
+          $ref: '#/components/schemas/Front'
+        back:
+          $ref: '#/components/schemas/Back'
+        chapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Chapter'
+    Person:
+      type: object
+      required: 
+        -  name
+      properties:
+        id: 
+          $ref: '#/components/schemas/ObjectId'
+        name:
+          type: string
+        fname:
+          type: string
+        otherNames: 
+          type: string
+        countryOfOrigin:
+          type: string
+        biography:
+          anyOf: 
+            - $ref: '#/components/schemas/Blob'
+            - $ref: '#/components/schemas/Uri'
+    Blob:
+      type: string
+    Uri:
+      type: string
+    Persons:
+      type: array
+      items:
+        $ref: '#/components/schemas/Person'
+    Creator:
+      example: Gabriel Garcia Marquez
+      oneOf:
+        - $ref: '#/components/schemas/Person'
+        - $ref: '#/components/schemas/Persons'
+    IntegerGroup:
+      oneOf:
+        - type: integer
+        - type: array
+          items: 
+            type: integer
+    Chapter:
+      type: object
+      required:
+        - id
+        - content
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        title:
+          type: string
+        content:
+          type: array
+          items:
+            type: string
+      
+      example: 
+        id: 235
+        content:
+          - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam porttitor justo turpis, nec dapibus leo malesuada eleifend. Nam leo odio, eleifend eget convallis vitae, elementum et augue. Sed pretium venenatis luctus. Sed dignissim porta risus, quis finibus nibh scelerisque eu. Quisque ultrices vehicula orci, non elementum risus fermentum nec. Maecenas ut nibh cursus, gravida metus eu, suscipit urna. Phasellus non maximus lacus. Maecenas sed risus auctor, lobortis orci ac, suscipit nisl.
+          - In hac habitasse platea dictumst. Suspendisse mattis risus a euismod ornare. Ut eu dolor sit amet est suscipit bibendum. Cras ut feugiat enim, varius faucibus orci. Integer mi diam, maximus convallis euismod in, commodo ac tortor. Donec blandit tellus nec nisl dictum porta. Aliquam sed dapibus tortor. Nulla congue vitae ex eu fermentum. Ut euismod suscipit aliquam. Fusce et commodo augue, sit amet viverra mi. Maecenas aliquam mi in nunc rutrum maximus. Mauris vitae ligula sed felis suscipit tempus. Curabitur vitae vestibulum mauris. Donec tempus a tellus semper rutrum.
+    Front:
+      description: Front cover
+      type: object
+      required:
+        - id
+        - content
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        content:
+          type: array
+          items:
+            type: string
+        illustration:
+          type: array
+          items:
+            type: string
+      example: 
+        id: 225
+        content:
+          - One Hundred Years of Solitude
+          - Gabriel García Márquez
+    Back:
+      description: Back cover
+      type: object
+      required:
+        - id
+        - content
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        content:
+          type: array
+          items:
+            type: string
+        illustration:
+          type: array
+          items:
+            type: string
+      example: 
+        id: 256
+        content:
+          - One Hundred Years of Solitude tells the story of the rise and fall, birth and death of the mythical town of Macondo through the history of the Buendía family. Inventive, amusing, magnetic, sad, and alive with unforgettable men and women -- brimming with truth, compassion, and a lyrical magic that strikes the soul -- this novel is a masterpiece in the art of fiction.
+          - About the Author 
+          - Gabriel García Márquez was born in 1927 in the town of Aracataca, Columbia.Latin America's preeminent man of letters, he was awarded the Nobel Prize in Literature in 1982. García Márquez began his writing career as a journalist and is the author of numerous other works of fiction and nonfiction, including the novels The Autumn of the Patriarch and Love in the Time of Cholera, and the autobiography Living to Tell the Tale. There has been resounding acclaim for his life's work since he passed away in April 2014.
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          description: A human readable error message
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+security:
+  - ApiKey: []

@@ -1,0 +1,81 @@
+{
+    "schema": {
+        "title": "Info",
+        "type": "object",
+        "required": [
+            "title",
+            "version",
+            "title",
+            "termsOfService",
+            "contact",
+            "license",
+            "x-logo",
+            "description"
+        ],
+        "properties": {
+            "version": {
+                "type": "string",
+                "title": "Version"
+            },
+            "title": {
+                "type": "string",
+                "title": "Title"
+            },
+            "termsOfService": {
+                "type": "string",
+                "title": "Terms of Service"
+            },
+            "contact": {
+                "type": "object",
+                "title": "Contact",
+                "required": [
+                    "email", "url"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "title": "Email"
+                    },
+                    "url": {
+                        "type": "string",
+                        "title": "URL"
+                    }
+                }
+            },
+            "license": {
+                "type": "object",
+                "title": "Terms of Service",
+                "required": [
+                    "name", "url"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "url": {
+                        "type": "string",
+                        "title": "URL"
+                    }
+                }
+            },
+            "x-logo": {
+                "type": "string",
+                "title": "Logo",
+                "required": [
+                    "url"
+                ],
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "title": "URL"
+                    }
+                }
+            },
+            "description": {
+                "type": "string",
+                "title": "Description"
+            }
+        }
+    }
+}
